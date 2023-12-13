@@ -33,10 +33,15 @@ from util.datasets import build_dataset
 from util.misc import NativeScalerWithGradNormCount as NativeScaler
 from util.pos_embed import interpolate_pos_embed
 
+from datetime import datetime
+
+from marinedebrisdetector.marinedebrisdetector.data.marinedebrisdatamodule import MarineDebrisDataModule
+
+
 
 def get_args_parser():
     parser = argparse.ArgumentParser(
-        "MAE fine-tuning for image classification", add_help=False
+        "MAE fine-tuning for image segmentation", add_help=False
     )
     parser.add_argument(
         "--batch_size",
@@ -277,6 +282,20 @@ def main(args):
     np.random.seed(seed)
 
     cudnn.benchmark = True
+
+    # START EMA 
+    marinedebris_datamodule = MarineDebrisDataModule(data_root=args.data_path,
+                                        image_size=args.image_size,
+                                        workers=args.workers,
+                                        batch_size=args.batch_size,
+                                        no_label_refinement=args.no_label_refinement,
+                                        no_s2ships=args.no_s2ships,
+                                        no_marida=args.no_marida,
+                                        download=args.download)
+
+    marinedebris_datamodule.prepare_data()
+
+    # END EMA
 
     dataset_train = build_dataset(is_train=True, args=args)
     dataset_val = build_dataset(is_train=False, args=args)

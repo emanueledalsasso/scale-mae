@@ -66,6 +66,8 @@ def get_dataset_and_sampler(
             transform=transforms_init,
             is_valid_file=is_fmow_rgb,
         )
+    elif dataset_type in ["marinedebris"]:
+        dataset = args.marinedebris_datamodule.train_dataloader()
         sampler_train = torch.utils.data.DistributedSampler(
             dataset, num_replicas=num_replicas, rank=rank, shuffle=True
         )
